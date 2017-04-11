@@ -1,7 +1,7 @@
 export default class FullPageScroll {
     constructor(options) {
         
-        this.section = document.querySelectorAll(options.section);
+        this.section = document.querySelector(options.section);
         
         // navigation
         this.nav = options.nav;
@@ -19,6 +19,8 @@ export default class FullPageScroll {
         this.afterScroll = options.afterScroll;
         
         // helpers
+        this.counter = 0;
+        this.step = 100;
         
         // functions
         //this._goTo(index);
@@ -27,36 +29,72 @@ export default class FullPageScroll {
     }
     
     _init() {
+        this._createDom();
         this._makeActive(this.activePageNumber);
+        this._findActive();
+        
         document.addEventListener('wheel', this._scrollActions.bind(this));
     }
     
-    _makeActive(index) {
-        for (let i = 0; i < this.section.length; i++) {
-            this.section[i].children[index - 1].classList.add('is-active');
+    _createDom() {
+        let wrapper = document.createElement('div');
+        wrapper.className = 'fullpage-wrapper js-fullpage-wrapper';
+        this.section.appendChild(wrapper);
+            
+        for (let i = 0; i < this.section.childElementCount - 1; i + 1) {
+            wrapper.appendChild(this.section.children[i]);
         }
+        this.parent = document.querySelector('.js-fullpage-wrapper');
     }
     
-    _scrollActions() {
-        this.activePage;
-        this._findActive();
-        this._moveUp();
+    _makeActive(index) {
+        this.parent.children[index - 1].classList.add('is-active');
+    }
+    
+    _scrollActions(e) {
+        if (e.deltaY > 0) {
+            this._moveUp();
+            //this.counter++;
+            //console.log(this.counter);
+        }
+        else {
+            this._moveDown();
+            //this.counter--;
+            //console.log(this.counter);
+        }
     }
     
     _findActive() {
-        for (let i = 0; i < this.section.length; i++) {
-            for (let j = 0; j < this.section[i].children.length; j++) {
-                let isActive = this.section[i].children[j].classList.contains('is-active');
+        for (let i = 0; i < this.parent.children.length; i++) {
+            let isActive = this.parent.children[i].classList.contains('is-active');
 
-                if (isActive) {
-                    this.activePage = this.section[i].children[j];
-                }
+            if (isActive) {
+                this.activePage = this.parent.children[i];
             }
         }
+        this.activePageIndex = [].indexOf.call(this.parent.children, this.activePage);
     }
     
     _moveUp() {
-        this.activePage.style.top = '-100%';
+        if (this.activePageIndex < this.parent.childElementCount - 1) {
+            this.activePage.classList.remove('is-active');
+            this.activePage = this.activePage.nextElementSibling;
+            this.activePageIndex++;
+            this.activePage.classList.add('is-active');
+            this.counter++;
+            this.parent.style.top = - this.counter * this.step + '%';
+        }
+    }
+    
+    _moveDown() {
+        if (this.activePageIndex > 0) {
+            this.activePage.classList.remove('is-active');
+            this.activePage = this.activePage.previousElementSibling;
+            this.activePageIndex--;
+            this.activePage.classList.add('is-active');
+            this.counter--;
+            this.parent.style.top = -this.counter * this.step + '%';
+        }
     }
     
 }
