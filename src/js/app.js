@@ -13,5 +13,6 @@ const MyFullPage = new FullPageScroll({
     controlPrev: '.js-prev',
     controlNext: '.js-next',
     scrollingSpeed: 500,
+    animationTime: 1000
 });
 

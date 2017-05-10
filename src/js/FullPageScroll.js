@@ -3,28 +3,33 @@ export default class FullPageScroll {
         
         this.section = document.querySelector(options.section);
         
-        // navigation
-        this.nav = options.nav;
-        this.navPosition = options.navPosition;
-        this.navBox = options.navBox;
-        this.activePageNumber = options.activePage;
-        
-        // controls
-        this.controlPrev = options.controlPrev;
-        this.controlNext = options.controlNext;
-        
-        // scroll
-        this.scrollingSpeed = options.scrollingSpeed;
-        this.beforeScroll = options.beforeScroll;
-        this.afterScroll = options.afterScroll;
-        
-        // helpers
-        this.counter = 0;
-        this.step = 100;
-        
-        // functions
-        //this._goTo(index);
-        this._init();
+        if (this.section) {
+            // navigation
+            this.nav = options.nav;
+            this.navPosition = options.navPosition;
+            this.navBox = options.navBox;
+            this.activePageNumber = options.activePage;
+            this.animationTime = options.animationTime;
+
+            // controls
+            this.controlPrev = options.controlPrev;
+            this.controlNext = options.controlNext;
+
+            // scroll
+            this.scrollingSpeed = options.scrollingSpeed;
+            this.beforeScroll = options.beforeScroll;
+            this.afterScroll = options.afterScroll;
+
+            // helpers
+            this.counter = 0;
+            this.step = 100;
+            this.lastAnimation = 0;
+
+            // functions
+            //this._goTo(index);
+            this._init();
+        }
+
         
     }
     
@@ -52,16 +57,19 @@ export default class FullPageScroll {
     }
     
     _scrollActions(e) {
-        if (e.deltaY > 0) {
-            this._moveUp();
-            //this.counter++;
-            //console.log(this.counter);
+        let currentTime = +new Date();
+        let quietPeriod = 500;
+        console.log(currentTime);
+        if (currentTime - this.lastAnimation < quietPeriod + this.animationTime) {
+            if (e.deltaY > 0) {
+                this._moveUp();
+            }
+            else {
+                this._moveDown();
+            }
         }
-        else {
-            this._moveDown();
-            //this.counter--;
-            //console.log(this.counter);
-        }
+        
+        this.lastAnimation = currentTime;  
     }
     
     _findActive() {
@@ -76,6 +84,8 @@ export default class FullPageScroll {
     }
     
     _moveUp() {
+        //console.log(this.activePageIndex);
+        //console.log(this.parent.childElementCount - 1);
         if (this.activePageIndex < this.parent.childElementCount - 1) {
             this.activePage.classList.remove('is-active');
             this.activePage = this.activePage.nextElementSibling;
